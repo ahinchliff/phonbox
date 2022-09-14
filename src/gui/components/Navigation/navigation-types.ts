@@ -1,0 +1,1 @@
+type Tab = 'phonons' | 'settings';
