@@ -1,0 +1,12 @@
+# MacOS
+.DS_Store
+# Yarn
+node_modules
+yarn-error.log
+# Config
+.env
+# Editor Setup
+.vscode
+# TypeScript
+build/
+*.tsbuildinfo
