@@ -8050,12 +8050,14 @@ pend@~1.2.0:
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
   integrity sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==
 
-"phonon-utils@file:../../phonon-client-js":
+"phonon-utils@https://github.com/ahinchliff/phonon-utils":
   version "0.0.1"
+  resolved "https://github.com/ahinchliff/phonon-utils#ed7351f3e75d936d847d4f4060cfedaf98eaa88f"
   dependencies:
     "@noble/secp256k1" "^1.6.3"
     "@types/node" "^17.0.21"
     smartcard "^1.0.46"
+    socket.io-client "^4.5.2"
 
 picocolors@^1.0.0:
   version "1.0.0"
