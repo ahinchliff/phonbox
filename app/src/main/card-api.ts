@@ -323,6 +323,11 @@ export const initCardApi = (window: BrowserWindow) => {
 
     const remotePairing = new RemotePairing(card, SOCKET_SERVER, {
       onStatusChange: (newStatus: phonbox.PairigStatus) => {
+        const cardDetail = getCardDetail(cardId);
+
+        if (!cardDetail) {
+          return;
+        }
         updateCardDetails(cardId, {
           pairing: {
             status: newStatus,
@@ -346,15 +351,15 @@ export const initCardApi = (window: BrowserWindow) => {
       message
     );
 
-    await remotePairing.pair(pairingCode);
     pairings.set(cardId, remotePairing);
+    await remotePairing.pair(pairingCode);
   };
 
   const acceptRemotePairing: AcceptRemotePairingFunction = async ({
     cardId,
     pairingCode,
   }) => {
-    removeRemotePairingRequest({ pairingCode });
+    removeRemotePairingRequest(pairingCode);
     const card = getCard(cardId);
 
     updateCardDetails(cardId, {
@@ -367,6 +372,12 @@ export const initCardApi = (window: BrowserWindow) => {
 
     const remotePairing = new RemotePairing(card, SOCKET_SERVER, {
       onStatusChange: (newStatus: phonbox.PairigStatus) => {
+        const cardDetail = getCardDetail(cardId);
+
+        if (!cardDetail) {
+          return;
+        }
+
         updateCardDetails(cardId, {
           pairing: {
             status: newStatus,
@@ -385,18 +396,24 @@ export const initCardApi = (window: BrowserWindow) => {
 
     pushCardsToFrontEnd();
 
-    await remotePairing.pair(pairingCode);
     pairings.set(cardId, remotePairing);
+    await remotePairing.pair(pairingCode);
   };
 
-  const removeRemotePairingRequest: RejectRemotePairingRequestFunction =
-    async ({ pairingCode }) => {
-      remotePairingRequests = remotePairingRequests.filter(
-        (rpr) => rpr.pairingCode !== pairingCode
-      );
+  const rejectPairingRequest: RejectRemotePairingRequestFunction = async ({
+    pairingCode,
+  }) => {
+    removeRemotePairingRequest(pairingCode);
+    socket.emit('REJECT_PAIRING_REQUEST', pairingCode);
+  };
 
-      pushRemotePairingRequestsToFrontEnd();
-    };
+  const removeRemotePairingRequest = async (pairingCode: string) => {
+    remotePairingRequests = remotePairingRequests.filter(
+      (rpr) => rpr.pairingCode !== pairingCode
+    );
+
+    pushRemotePairingRequestsToFrontEnd();
+  };
 
   const closePairing: ClosePairingFunction = async ({ cardId }) => {
     const cardDetail = getCardDetail(cardId);
@@ -435,7 +452,7 @@ export const initCardApi = (window: BrowserWindow) => {
     acceptRemotePairing(args)
   );
   ipcMain.handle('REJECT_REMOTE_PAIRING_REQUEST', (_, args) =>
-    removeRemotePairingRequest(args)
+    rejectPairingRequest(args)
   );
   ipcMain.handle('CLOSE_PAIRING', (_, args) => closePairing(args));
 };

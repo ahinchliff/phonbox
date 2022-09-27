@@ -49,6 +49,14 @@ io.on('connection', (socket) => {
     }
   );
 
+  socket.on('REJECT_PAIRING_REQUEST', async (pairingCode: string) => {
+    console.log('Received event: REJECT_PAIRING_REQUEST', {
+      pairingCode,
+    });
+
+    io.in(pairingCode).disconnectSockets(true);
+  });
+
   socket.on('JOIN_PAIRING', (pairingCode: string) => {
     socket.data.pairingCode = pairingCode;
     console.log('Received event: JOIN_PAIRING', { pairingCode });
@@ -127,8 +135,6 @@ io.on('connection', (socket) => {
   socket.on('UNPAIR', () => {
     console.log('Received event: UNPAIR');
     for (const room of socket.rooms.values()) {
-      let roomMembers = io.sockets.adapter.rooms.get(room);
-      console.log(roomMembers);
       io.in(room).disconnectSockets(true);
     }
   });

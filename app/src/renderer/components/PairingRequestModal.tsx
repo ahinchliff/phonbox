@@ -13,9 +13,7 @@ const PairingRequestModal: React.FC = () => {
     rejectRemotePairing,
   } = useCardStore();
 
-  const [recipientCard, setRecipientCard] = React.useState<
-    phonbox.CardDetails | undefined
-  >();
+  const [recipientCardId, setRecipientCardId] = React.useState<string>();
 
   const [cardPin, setCardPin] = React.useState<string>();
   const request = remotePairingRequests[0];
@@ -26,12 +24,14 @@ const PairingRequestModal: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (!recipientCard) {
-      setRecipientCard(validCards[0]);
+    if (!recipientCardId) {
+      setRecipientCardId(validCards[0]?.id);
     }
   }, [validCards]);
 
-  const needsPin = recipientCard && !recipientCard.isUnlocked;
+  const recipientCard = validCards.find((vc) => vc.id === recipientCardId);
+
+  const needsPin = !recipientCard?.isUnlocked;
 
   const onSubmit = async () => {
     if (!request || !recipientCard) {
@@ -68,7 +68,7 @@ const PairingRequestModal: React.FC = () => {
         <SelectCard
           selectedCardId={recipientCard?.id}
           cards={validCards}
-          onChange={(v) => setRecipientCard(v)}
+          onChange={(v) => setRecipientCardId(v.id)}
         />
         {needsPin && (
           <input
