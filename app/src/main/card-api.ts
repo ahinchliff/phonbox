@@ -20,6 +20,7 @@ import {
   AcceptRemotePairingFunction,
   RejectRemotePairingRequestFunction,
   ClosePairingFunction as ClosePairingFunction,
+  InitialiseCardFunction,
 } from '../types/IPC';
 import { RemotePairingRequest } from '../types/RemotePairing';
 
@@ -84,21 +85,38 @@ export const initCardApi = (window: BrowserWindow) => {
 
         const sendCommand = createSendCommand(event.card);
         const phononCard = new PhononCard(sendCommand);
-        await phononCard.pair();
-        const friendlyName = await phononCard.getFriendlyName();
-        const certEnvironment = await getCardEnvironment(phononCard);
-        const publicKey = Buffer.from(phononCard.getPublicKey()).toString(
-          'hex'
-        );
+        await phononCard.select();
 
-        const cardDetail: phonbox.CardDetails = {
-          id: cardId,
-          publicKey,
-          friendlyName,
-          isUnlocked: false,
-          certEnvironment,
-          pairing: undefined,
-        };
+        let cardDetail: phonbox.CardDetails;
+
+        if (phononCard.getIsInitialised()) {
+          await phononCard.openSecureConnection();
+          const friendlyName = await phononCard.getFriendlyName();
+          const certEnvironment = await getCardEnvironment(phononCard);
+          const publicKey = Buffer.from(phononCard.getPublicKey()).toString(
+            'hex'
+          );
+          cardDetail = {
+            id: cardId,
+            isInitialised: true,
+            publicKey,
+            friendlyName,
+            isUnlocked: false,
+            certEnvironment,
+            pairing: undefined,
+          };
+        } else {
+          await phononCard.identifyCard();
+          cardDetail = {
+            id: cardId,
+            isInitialised: false,
+            publicKey: Buffer.from(phononCard.getPublicKey()).toString('hex'),
+            friendlyName: undefined,
+            isUnlocked: false,
+            certEnvironment: undefined,
+            pairing: undefined,
+          };
+        }
 
         cards.set(cardId, phononCard);
         cardDetails.set(cardId, cardDetail);
@@ -167,6 +185,27 @@ export const initCardApi = (window: BrowserWindow) => {
     }
 
     return result;
+  };
+
+  const initialiseCard: InitialiseCardFunction = async ({ cardId, pin }) => {
+    const card = cards.get(cardId);
+    if (!card) {
+      throw new Error(`Could not find card with id: ${cardId}`);
+    }
+    await card.init(pin);
+    await card.openSecureConnection();
+    const friendlyName = await card.getFriendlyName();
+    const certEnvironment = await getCardEnvironment(card);
+    const publicKey = Buffer.from(card.getPublicKey()).toString('hex');
+
+    updateCardDetails(cardId, {
+      isInitialised: true,
+      friendlyName,
+      certEnvironment,
+      publicKey,
+    });
+
+    pushCardsToFrontEnd();
   };
 
   const updateName: UpdateNameFunction = async ({ cardId, name }) => {
@@ -384,6 +423,7 @@ export const initCardApi = (window: BrowserWindow) => {
 
   ipcMain.handle('GET_PHONONS', (_, args) => getPhonons(args));
   ipcMain.handle('UNLOCK', (_, args) => unlock(args));
+  ipcMain.handle('INITIALISE_CARD', (_, args) => initialiseCard(args));
   ipcMain.handle('CREATE_PHONON', (_, args) => createPhonon(args));
   ipcMain.handle('DESTORY_PHONON', (_, args) => destroyPhonon(args));
   ipcMain.handle('SEND_PHONONS', (_, args) => sendPhonons(args));

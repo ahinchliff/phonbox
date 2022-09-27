@@ -29,6 +29,7 @@ const api: PreloadApi = {
     ipcRenderer.invoke('INIT_LOCAL_PAIRING', args),
   sendPhonons: async (args) => ipcRenderer.invoke('SEND_PHONONS', args),
   unlock: async (args) => ipcRenderer.invoke('UNLOCK', args),
+  initialiseCard: async (args) => ipcRenderer.invoke('INITIALISE_CARD', args),
   updateName: async (args) => ipcRenderer.invoke('UPDATE_NAME', args),
   updatePin: async (args) => ipcRenderer.invoke('UPDATE_PIN', args),
   sendPairingRequest: async (args) =>

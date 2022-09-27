@@ -22,6 +22,7 @@ declare namespace phonbox {
 
   type CardDetails = {
     id: string;
+    isInitialised: boolean;
     publicKey: string;
     isUnlocked: boolean;
     friendlyName: string | undefined;

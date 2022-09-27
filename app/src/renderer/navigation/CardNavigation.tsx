@@ -7,6 +7,7 @@ import CardSettings from '../components/CardSettings';
 import Header from '../components/Header';
 import PhononList from '../components/PhononList/PhononList';
 import UnlockCard from '../components/UnlockCard';
+import InitialiseCard from 'renderer/components/InitialiseCard';
 
 const CardNavigation: React.FC = () => {
   return (
@@ -16,7 +17,8 @@ const CardNavigation: React.FC = () => {
         <div className="pt-8">
           <CardIsUnlockedWrapper>
             <Routes>
-              <Route path="/" element={<UnlockCard />} />
+              <Route path="/" element={<InitialiseCard />} />
+              <Route path="/unlock" element={<UnlockCard />} />
               <Route path="/phonons" element={<PhononList />} />
               <Route path="/settings" element={<CardSettings />} />
             </Routes>

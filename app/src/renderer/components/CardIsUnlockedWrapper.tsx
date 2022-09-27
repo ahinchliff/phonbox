@@ -14,10 +14,12 @@ const CardIsUnlockedWrapper: React.FC<Props> = (props) => {
 
   React.useEffect(() => {
     if (selectedCard) {
-      if (selectedCard.isUnlocked) {
-        navigate('/phonons');
-      } else {
+      if (!selectedCard.isInitialised) {
         navigate('/');
+      } else if (!selectedCard.isUnlocked) {
+        navigate('/unlock');
+      } else {
+        navigate('/phonons');
       }
     }
   }, [selectedCard]);

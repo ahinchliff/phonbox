@@ -13,6 +13,11 @@ export type UnlockFunction = (args: {
   pin: string;
 }) => Promise<UnlockResponse>;
 
+export type InitialiseCardFunction = (args: {
+  cardId: string;
+  pin: string;
+}) => Promise<void>;
+
 export type UpdateNameFunction = (args: {
   cardId: string;
   name: string;
@@ -61,6 +66,7 @@ export type ClosePairingFunction = (args: { cardId: string }) => Promise<void>;
 
 export type PreloadApi = {
   getPhonons: GetPhononsFunction;
+  initialiseCard: InitialiseCardFunction;
   unlock: UnlockFunction;
   createPhonon: CreatePhononFunction;
   destoryPhonon: DestoryPhononFunction;

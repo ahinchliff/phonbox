@@ -23,6 +23,7 @@ type CardStore = {
   acceptRemotePairing: (cardId: string, pairingCode: string) => Promise<void>;
   rejectRemotePairing: (pairingCode: string) => Promise<void>;
   closePairing: () => Promise<void>;
+  initialiseCard: (cardId: string, pin: string) => Promise<void>;
 };
 
 const CardStoreContext = React.createContext<CardStore | undefined>(undefined);
@@ -116,6 +117,14 @@ export const CardStoreProvider: React.FC<{
     [selectedCard]
   );
 
+  const initialiseCard = React.useCallback(
+    async (cardId: string, pin: string) => {
+      await api.initialiseCard({ cardId, pin });
+      await api.unlock({ cardId, pin });
+    },
+    []
+  );
+
   const updatePin = React.useCallback(
     async (pin: string) => {
       if (!selectedCard) {
@@ -194,6 +203,7 @@ export const CardStoreProvider: React.FC<{
       acceptRemotePairing,
       rejectRemotePairing,
       closePairing,
+      initialiseCard,
     }),
     [
       cards,
@@ -211,6 +221,7 @@ export const CardStoreProvider: React.FC<{
       acceptRemotePairing,
       rejectRemotePairing,
       closePairing,
+      initialiseCard,
     ]
   );
 
